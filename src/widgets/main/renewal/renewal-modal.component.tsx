@@ -8,6 +8,7 @@ import {
     Badge,
     Button,
     Center,
+    Checkbox,
     Group,
     Loader,
     Modal,
@@ -28,7 +29,7 @@ import { ReactNode, useEffect, useRef, useState } from 'react'
 import { useAppConfig } from '@entities/app-config-store'
 import { useSubscription } from '@entities/subscription-info-store'
 
-import { devices as devicesText, money, months as monthsText, moscowDate } from './format'
+import { devices as devicesText, money, months as monthsText, moscowDate, saving } from './format'
 import {
     createPayment,
     getRenewalOptions,
@@ -111,6 +112,8 @@ const RenewalBody = () => {
     const [selectedMonths, setSelectedMonths] = useState<number | null>(null)
     const [loading, setLoading] = useState(true)
     const [paying, setPaying] = useState(false)
+    // На регулярные списания человек соглашается сам — по умолчанию выключено.
+    const [saveCard, setSaveCard] = useState(false)
     const [error, setError] = useState<null | string>(null)
     const cache = useRef(new Map<number, IRenewalOptions>())
 
@@ -159,7 +162,12 @@ const RenewalBody = () => {
         setPaying(true)
         setError(null)
         try {
-            window.location.href = await createPayment(user.shortUuid, selectedMonths, devices)
+            window.location.href = await createPayment(
+                user.shortUuid,
+                selectedMonths,
+                devices,
+                saveCard
+            )
         } catch (e) {
             setError(e instanceof RenewalApiError ? e.message : 'Не получилось создать оплату.')
             setPaying(false)
@@ -249,10 +257,11 @@ const RenewalBody = () => {
                 )}
             </Paper>
 
-            <Stack gap="xs" opacity={stale ? 0.5 : 1}>
+            {/* Сроки чуть уже блока устройств и ниже — не в одну линию с ним. */}
+            <Stack gap={6} mx="sm" opacity={stale ? 0.5 : 1}>
                 {options.data.map((option) => {
                     const isSelected = option.months === selectedMonths
-                    const hasDiscount = option.full_amount !== option.amount
+                    const saved = saving(option)
                     return (
                         <UnstyledButton
                             disabled={stale}
@@ -260,7 +269,8 @@ const RenewalBody = () => {
                             onClick={() => setSelectedMonths(option.months)}
                         >
                             <Paper
-                                p="sm"
+                                px="sm"
+                                py={8}
                                 radius="md"
                                 style={{
                                     borderColor: isSelected
@@ -288,9 +298,9 @@ const RenewalBody = () => {
                                     </Stack>
                                     <Stack align="flex-end" gap={0}>
                                         <Text fw={700}>{money(option.amount)}</Text>
-                                        {hasDiscount && (
-                                            <Text c="dimmed" size="xs" td="line-through">
-                                                {money(option.full_amount)}
+                                        {saved > 0 && (
+                                            <Text c="teal.4" fw={500} size="xs">
+                                                выгода {money(String(saved))}
                                             </Text>
                                         )}
                                     </Stack>
@@ -328,6 +338,18 @@ const RenewalBody = () => {
             >
                 {selected ? `Оплатить ${money(selected.amount)}` : 'Оплатить'}
             </Button>
+
+            <Checkbox
+                checked={saveCard}
+                color="cyan"
+                description="За 2 дня до конца подписки спишем оплату за месяц. Выключить можно в любой момент в боте."
+                disabled={paying}
+                label="Сохранить карту для автопродления"
+                // Чуть правее края кнопки — не в одну линию с ней.
+                ml="sm"
+                onChange={(event) => setSaveCard(event.currentTarget.checked)}
+                radius="sm"
+            />
         </Stack>
     )
 }

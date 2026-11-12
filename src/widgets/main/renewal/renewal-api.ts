@@ -67,15 +67,20 @@ export function getRenewalOptions(shortUuid: string, devices?: number): Promise<
     return request(shortUuid, `renewal/options${query}`)
 }
 
+// saveCard — сохранить карту и списывать с неё автопродление (как в боте).
 export async function createPayment(
     shortUuid: string,
     months: number,
-    devices: number
+    devices: number,
+    saveCard: boolean
 ): Promise<string> {
     const { data } = await request<{ data: { confirmation_url: null | string } }>(
         shortUuid,
         'payments',
-        { method: 'POST', body: JSON.stringify({ months, devices }) }
+        {
+            method: 'POST',
+            body: JSON.stringify({ months, devices, save_method: saveCard })
+        }
     )
     // Уходим только на https-страницу банка: не javascript: и не что-то ещё.
     if (!data.confirmation_url?.startsWith('https://')) {

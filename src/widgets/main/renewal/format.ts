@@ -8,6 +8,20 @@ export function plural(n: number, one: string, few: string, many: string): strin
     return many
 }
 
+// Сколько рублей экономит срок против помесячной оплаты — как в боте: скидку
+// на первую оплату не считаем, она и на месяц; вниз до рубля, чтобы не
+// обещать больше, чем есть. Считаем в копейках.
+export function saving(option: {
+    amount: string
+    full_amount: string
+    trial_discount_percent: number
+}): number {
+    const full = Math.round(Number(option.full_amount) * 100)
+    const paid = Math.round(Number(option.amount) * 100)
+    const monthly = (full * (100 - option.trial_discount_percent)) / 100
+    return Math.floor((monthly - paid) / 100 + 1e-9)
+}
+
 export const months = (n: number) => `${n} ${plural(n, 'месяц', 'месяца', 'месяцев')}`
 
 export const devices = (n: number) => `${n} ${plural(n, 'устройство', 'устройства', 'устройств')}`

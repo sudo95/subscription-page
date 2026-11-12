@@ -14,7 +14,7 @@
 | Файл | |
 |---|---|
 | `widgets/main/subscription-info/subscription-info-expanded.widget.tsx` | Заменён. Блок «expanded»: статус словами («Подписка активна» и т. п.), когда кончается, трафик (только если ограничен), кнопка «Продлить». Включается в конфиге страницы: `uiConfig.subscriptionInfoBlockType: "expanded"` |
-| `widgets/main/renewal/*` | Новые. Модалка продления: срок и число устройств; ходит в API биллинга (`/api/renewal/options`, `/api/payments`) с shortUuid в заголовке `X-Subscription` |
+| `widgets/main/renewal/*` | Новые. Модалка продления: срок, число устройств и галочка «Сохранить карту для автопродления» (по умолчанию снята); ходит в API биллинга (`/api/renewal/options`, `/api/payments`) с shortUuid в заголовке `X-Subscription` |
 | `pages/main/ui/components/main.page.component.tsx` | Заменён. Как в оригинале 8.0.1 плюс ссылка на исходники внизу |
 
 ## Сборка
