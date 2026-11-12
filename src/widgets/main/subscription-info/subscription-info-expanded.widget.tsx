@@ -79,6 +79,7 @@ export const SubscriptionInfoExpandedWidget = ({ isMobile }: IProps) => {
     }
 
     const status = getStatus()
+    const trafficOut = user.userStatus === 'LIMITED'
     const gradient = getColorGradientSolid(status.color)
     const needsRenewal = status.color !== 'teal'
 
@@ -161,11 +162,15 @@ export const SubscriptionInfoExpandedWidget = ({ isMobile }: IProps) => {
                                 fw={600}
                                 size={isMobile ? 'xs' : 'sm'}
                             >
-                                {getExpirationTextUtil(
-                                    user.expiresAt,
-                                    currentLang,
-                                    baseTranslations
-                                )}
+                                {/* Трафик кончился — VPN не работает, хотя дни остались:
+                                    дата только запутает, говорим, что делать. */}
+                                {trafficOut
+                                    ? 'Продлите, чтобы VPN снова заработал'
+                                    : getExpirationTextUtil(
+                                          user.expiresAt,
+                                          currentLang,
+                                          baseTranslations
+                                      )}
                             </Text>
                         </Stack>
 
