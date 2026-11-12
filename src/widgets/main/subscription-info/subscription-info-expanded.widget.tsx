@@ -84,8 +84,15 @@ export const SubscriptionInfoExpandedWidget = ({ isMobile }: IProps) => {
 
     // '0' — без лимита (оплаченная подписка): трафик не показываем.
     const limited = user.trafficLimit !== '0'
+    // Доля израсходованного, 0–100: полоса заполняется по мере трафика.
     const usedPercent = limited
-        ? Math.min(100, (Number(user.trafficUsedBytes) / Number(user.trafficLimitBytes)) * 100 || 0)
+        ? Math.min(
+              100,
+              Math.max(
+                  0,
+                  (Number(user.trafficUsedBytes) / Number(user.trafficLimitBytes)) * 100 || 0
+              )
+          )
         : 0
 
     const traffic = limited && (
